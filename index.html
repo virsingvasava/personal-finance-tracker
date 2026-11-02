@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Loan & Expense Tracker</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        amber: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                            900: '#78350f',
+                        },
+                        dark: {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            600: '#475569'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+        }
+        /* Custom scrollbar for dark mode */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111827;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4b5563;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100 pb-12">
+
+    <!-- Top Navigation Header -->
+    <header class="border-b border-amber-500/20 bg-slate-900/80 backdrop-blur-md sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center text-slate-950 font-bold text-xl shadow-lg shadow-amber-500/20">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-100 leading-tight">LedgerGold</h1>
+                    <p class="text-xs text-amber-500 font-medium">Loan & Expense Manager</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <!-- Currency Selector Toggle -->
+                <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl p-1 gap-1">
+                    <button id="currINR" onclick="setCurrency('INR')" class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all text-slate-400 hover:text-slate-200">₹ INR</button>
+                    <button id="currAED" onclick="setCurrency('AED')" class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all text-slate-400 hover:text-slate-200">AED</button>
+                </div>
+
+                <!-- Quick Import / Parser Tool Trigger -->
+                <button onclick="openSmartParserModal()" title="Smart SMS / Statement Text Parser" class="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all">
+                    <i class="fa-solid fa-wand-magic-sparkles text-xs"></i> Parser & Import
+                </button>
+
+                <button onclick="exportData()" title="Export JSON" class="p-2 text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-colors">
+                    <i class="fa-solid fa-download"></i>
+                </button>
+                <label title="Import JSON" class="p-2 text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer">
+                    <i class="fa-solid fa-upload"></i>
+                    <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
+                </label>
+                <button onclick="resetDataPrompt()" title="Reset All Data" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition-colors">
+                    <i class="fa-solid fa-trash-arrow-up"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+
+        <!-- Notification Toast Container -->
+        <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
+
+        <!-- REAL DATA SETUP BANNER -->
+        <section class="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/20 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </div>
+                <div>
+                    <h2 class="text-sm font-bold text-slate-100">Setup Your Real Credit Cards & Loans</h2>
+                    <p class="text-xs text-slate-400">Click below to load your exact list (ICICI, Axis, SBI, BOB Home Loan, Gold Loan, Navi, and Slice) or edit them directly.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <button onclick="loadRealAccountsTemplate()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-xl transition-all shadow-lg shadow-amber-500/20 flex items-center gap-1.5">
+                    <i class="fa-solid fa-bolt"></i> Load My Real Accounts
+                </button>
+            </div>
+        </section>
+
+        <!-- SUMMARY CARDS GRID -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Total Expenses Card -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 relative overflow-hidden shadow-xl hover:border-amber-500/30 transition-all group">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-rose-500/10 rounded-full blur-2xl group-hover:bg-rose-500/20 transition-all"></div>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Expenses</span>
+                    <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center">
+                        <i class="fa-solid fa-arrow-trend-down"></i>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <p id="cardTotalExpenses" class="text-2xl sm:text-3xl font-extrabold text-slate-100">$0.00</p>
+                    <p class="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                        <span id="expenseCountBadge" class="text-rose-400 font-medium">0 items</span> logged
+                    </p>
+                </div>
+            </div>
+
+            <!-- Active Loans Balance Card -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 relative overflow-hidden shadow-xl hover:border-amber-500/30 transition-all group">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-all"></div>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Active Loans Owed</span>
+                    <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                        <i class="fa-solid fa-hand-holding-dollar"></i>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <p id="cardActiveLoans" class="text-2xl sm:text-3xl font-extrabold text-amber-400">$0.00</p>
+                    <p class="text-xs text-slate-400 mt-1">
+                        Out of <span id="cardTotalLoanOriginal" class="text-slate-300">$0.00</span> total principal
+                    </p>
+                </div>
+            </div>
+
+            <!-- Upcoming Due Payments Card -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 relative overflow-hidden shadow-xl hover:border-amber-500/30 transition-all group">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-sky-500/10 rounded-full blur-2xl group-hover:bg-sky-500/20 transition-all"></div>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Upcoming Due</span>
+                    <div class="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center">
+                        <i class="fa-regular fa-calendar-check"></i>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <p id="cardUpcomingCount" class="text-2xl sm:text-3xl font-extrabold text-slate-100">0 Loans</p>
+                    <p id="cardNextDueSub" class="text-xs text-sky-400 mt-1 font-medium truncate">No immediate deadline</p>
+                </div>
+            </div>
+
+            <!-- Monthly Financial Health -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 relative overflow-hidden shadow-xl hover:border-amber-500/30 transition-all group">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all"></div>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Loans Repaid (% Total)</span>
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <p id="cardRepaidPercentage" class="text-2xl sm:text-3xl font-extrabold text-emerald-400">0%</p>
+                    <div class="w-full bg-slate-800 h-2 rounded-full mt-2 overflow-hidden">
+                        <div id="cardRepaidProgressBar" class="bg-emerald-400 h-full w-0 transition-all duration-500"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CHARTS SECTION -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Expense Category Doughnut Chart -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-semibold text-slate-200 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-amber-500"></i> Expense Breakdown
+                    </h3>
+                </div>
+                <div class="relative flex-1 flex items-center justify-center min-h-[220px]">
+                    <canvas id="expenseCategoryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Monthly Expenses Bar Chart -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl lg:col-span-2 flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-semibold text-slate-200 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-chart-column text-amber-500"></i> Expenses Timeline
+                    </h3>
+                </div>
+                <div class="relative flex-1 min-h-[220px]">
+                    <canvas id="expenseTimelineChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- MAIN DASHBOARD CONTENT GRID (LOANS & EXPENSES) -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- LOANS MODULE (LEFT COLUMN - 7 COLS) -->
+            <div class="lg:col-span-7 space-y-4">
+                <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-5 border-b border-slate-800 pb-4">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-building-columns text-amber-500"></i> Loan Tracker
+                            </h2>
+                            <p class="text-xs text-slate-400">Track liabilities, debt progress & repayment terms</p>
+                        </div>
+                        <button onclick="openLoanModal()" class="px-4 py-2 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 text-xs font-bold rounded-xl shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Add New Loan
+                        </button>
+                    </div>
+
+                    <!-- Loans List Container -->
+                    <div id="loansList" class="space-y-4">
+                        <!-- Loan Cards render here dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- EXPENSES MODULE (RIGHT COLUMN - 5 COLS) -->
+            <div class="lg:col-span-5 space-y-4">
+                <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                    <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-4">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-receipt text-amber-500"></i> Expense Tracker
+                            </h2>
+                            <p class="text-xs text-slate-400">Log & filter your daily spendings</p>
+                        </div>
+                        <button onclick="openExpenseModal()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 text-xs font-semibold rounded-xl transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Add Expense
+                        </button>
+                    </div>
+
+                    <!-- Filter Controls -->
+                    <div class="grid grid-cols-2 gap-2 mb-4 bg-slate-950 p-2 rounded-xl border border-slate-800/80">
+                        <div>
+                            <label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">Category</label>
+                            <select id="filterCategory" onchange="renderExpenses()" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-amber-500 outline-none">
+                                <option value="All">All Categories</option>
+                                <option value="Housing">Housing</option>
+                                <option value="Food">Food & Dining</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Transportation">Transportation</option>
+                                <option value="Personal">Personal & Fun</option>
+                                <option value="Health">Healthcare</option>
+                                <option value="Loan Payment">Loan Payment</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">Timeframe</label>
+                            <select id="filterDateRange" onchange="renderExpenses()" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-amber-500 outline-none">
+                                <option value="All">All Time</option>
+                                <option value="Month">This Month</option>
+                                <option value="Year">This Year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Expenses List -->
+                    <div id="expensesList" class="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+                        <!-- Dynamic expense items -->
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- MODAL: ADD / EDIT LOAN -->
+    <div id="loanModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm hidden">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl shadow-2xl p-6 relative animate-in fade-in zoom-in duration-200">
+            <button onclick="closeLoanModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-100">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 id="loanModalTitle" class="text-lg font-bold text-amber-400 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-handshake"></i> Add New Loan
+            </h3>
+            
+            <form id="loanForm" onsubmit="saveLoan(event)" class="space-y-4">
+                <input type="hidden" id="loanId">
+
+                <!-- Quick Presets for Indian Banks / Loan Providers -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-amber-400 uppercase tracking-wider mb-1.5">Quick Presets</label>
+                    <div class="flex flex-wrap gap-1.5 mb-2">
+                        <button type="button" onclick="applyLoanPreset('ICICI Credit Card')" class="px-2.5 py-1 bg-slate-950 border border-slate-800 hover:border-amber-500/50 text-[11px] rounded-lg text-slate-300">ICICI Card</button>
+                        <button type="button" onclick="applyLoanPreset('Axis Credit Card')" class="px-2.5 py-1 bg-slate-950 border border-slate-800 hover:border-amber-500/50 text-[11px] rounded-lg text-slate-300">Axis Card</button>
+                        <button type="button" onclick="applyLoanPreset('SBI Credit Card')" class="px-2.5 py-1 bg-slate-950 border border-slate-800 hover:border-amber-500/50 text-[11px] rounded-lg text-slate-300">SBI Card</button>
+                        <button type="button" onclick="applyLoanPreset('Home Loan (BOB Bank)')" class="px-2.5 py-1 bg-slate-950 border border-slate-800 hover:border-amber-500/50 text-[11px] rounded-lg text-slate-300">BOB Home Loan</button>
+                        <button type="button" onclick="applyLoanPreset('Gold Loan')" class="px-2.5 py-1 bg-slate-950 border border-slate-800 hover:border-amber-500/50 text-[11px] rounded-lg text-slate-300">Gold Loan</button>
+                        <button type="button" onclick="applyLoanPreset('Navi App Loan')" class="px-2.5 py-1 bg-slate-950 border border-slate-800 hover:border-amber-500/50 text-[11px] rounded-lg text-slate-300">Navi Loan</button>
+                        <button type="button" onclick="applyLoanPreset('Slice App Loan')" class="px-2.5 py-1 bg-slate-950 border border-slate-800 hover:border-amber-500/50 text-[11px] rounded-lg text-slate-300">Slice Loan</button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Lender / Borrower Name *</label>
+                    <input type="text" id="loanTitle" required placeholder="e.g., ICICI Credit Card, BOB Home Loan" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label id="loanTotalLabel" class="block text-xs font-semibold text-slate-300 mb-1">Total Amount *</label>
+                        <input type="number" id="loanTotal" step="0.01" min="0" required placeholder="50000" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none">
+                    </div>
+                    <div>
+                        <label id="loanRemainingLabel" class="block text-xs font-semibold text-slate-300 mb-1">Remaining Balance *</label>
+                        <input type="number" id="loanRemaining" step="0.01" min="0" required placeholder="35000" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Interest Rate (%)</label>
+                        <input type="number" id="loanRate" step="0.01" min="0" placeholder="5.5" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Next Due Date</label>
+                        <input type="date" id="loanDueDate" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Status</label>
+                    <select id="loanStatus" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none">
+                        <option value="Active">Active</option>
+                        <option value="Paid">Paid Off</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeLoanModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold rounded-xl text-xs shadow-lg shadow-amber-500/20">Save Loan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD LOG PAYMENT FOR LOAN -->
+    <div id="paymentModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm hidden">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl shadow-2xl p-6 relative">
+            <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-100">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-base font-bold text-amber-400 mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-money-bill-transfer"></i> Log Payment
+            </h3>
+            <p id="paymentModalSub" class="text-xs text-slate-400 mb-4">Deduct balance from loan</p>
+
+            <form id="paymentForm" onsubmit="submitPayment(event)" class="space-y-4">
+                <input type="hidden" id="payLoanId">
+                <div>
+                    <label id="payAmountLabel" class="block text-xs font-semibold text-slate-300 mb-1">Payment Amount *</label>
+                    <input type="number" id="payAmount" step="0.01" min="0.01" required placeholder="2500" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Date</label>
+                    <input type="date" id="payDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none">
+                </div>
+                <div class="flex items-center gap-2 pt-1">
+                    <input type="checkbox" id="payAddExpense" class="rounded bg-slate-950 border-slate-800 text-amber-500 focus:ring-amber-500" checked>
+                    <label for="payAddExpense" class="text-xs text-slate-300">Also record as an Expense</label>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closePaymentModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs shadow-lg">Confirm Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT EXPENSE -->
+    <div id="expenseModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm hidden">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl shadow-2xl p-6 relative">
+            <button onclick="closeExpenseModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-100">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 id="expenseModalTitle" class="text-lg font-bold text-amber-400 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-file-invoice-dollar"></i> Add Expense
+            </h3>
+
+            <form id="expenseForm" onsubmit="saveExpense(event)" class="space-y-4">
+                <input type="hidden" id="expenseId">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Description / Title *</label>
+                    <input type="text" id="expTitle" required placeholder="e.g., Grocery Shopping, Electricity Bill" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label id="expAmountLabel" class="block text-xs font-semibold text-slate-300 mb-1">Amount *</label>
+                        <input type="number" id="expAmount" step="0.01" min="0.01" required placeholder="450" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Category *</label>
+                        <select id="expCategory" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none">
+                            <option value="Housing">Housing</option>
+                            <option value="Food">Food & Dining</option>
+                            <option value="Utilities">Utilities</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Personal">Personal & Fun</option>
+                            <option value="Health">Healthcare</option>
+                            <option value="Loan Payment">Loan Payment</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Date *</label>
+                    <input type="date" id="expDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeExpenseModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold rounded-xl text-xs shadow-lg shadow-amber-500/20">Save Expense</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: SMART SMS & CSV PARSER -->
+    <div id="smartParserModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm hidden">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl shadow-2xl p-6 relative">
+            <button onclick="closeSmartParserModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-100">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-lg font-bold text-amber-400 mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Statement & SMS Auto-Parser
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">Paste SMS text or import a CSV statement to bypass manual entry.</p>
+
+            <!-- Tabs -->
+            <div class="flex border-b border-slate-800 mb-4">
+                <button type="button" onclick="switchParserTab('sms')" id="tabSmsBtn" class="px-4 py-2 border-b-2 border-amber-500 text-amber-400 text-xs font-bold">Paste SMS / Text Snippet</button>
+                <button type="button" onclick="switchParserTab('csv')" id="tabCsvBtn" class="px-4 py-2 border-b-2 border-transparent text-slate-400 text-xs font-bold hover:text-slate-200">CSV Statement Upload</button>
+            </div>
+
+            <!-- TAB 1: SMS / Text Parsing -->
+            <div id="parserSmsView" class="space-y-3">
+                <p class="text-xs text-slate-300">Paste bank transaction SMS or alert text below:</p>
+                <textarea id="smsTextInput" rows="4" placeholder="Example: Rs 4,500 spent on ICICI Bank credit card XX1234 on 05-Nov-26 at Amazon INR." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:border-amber-500 outline-none"></textarea>
+                <button type="button" onclick="parseSmsText()" class="w-full py-2 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold rounded-xl text-xs shadow-lg">Extract & Auto-Fill Expense</button>
+            </div>
+
+            <!-- TAB 2: CSV Import -->
+            <div id="parserCsvView" class="space-y-3 hidden">
+                <p class="text-xs text-slate-300">Upload bank or card CSV statement file:</p>
+                <input type="file" id="csvFileInput" accept=".csv" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-slate-400">
+                <button type="button" onclick="parseCsvFile()" class="w-full py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs shadow-lg">Import Expenses from CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- APPLICATION LOGIC JS -->
+    <script>
+        // State Initialization
+        let loans = [];
+        let expenses = [];
+        let currentCurrency = 'INR';
+        let categoryChart = null;
+        let timelineChart = null;
+
+        // Color maps for categories
+        const categoryColors = {
+            'Housing': '#f59e0b',
+            'Food': '#ef4444',
+            'Utilities': '#06b6d4',
+            'Transportation': '#3b82f6',
+            'Personal': '#ec4899',
+            'Health': '#10b981',
+            'Loan Payment': '#8b5cf6',
+            'Other': '#64748b'
+        };
+
+        // App Initialization
+        window.onload = function() {
+            loadStoredData();
+            initCharts();
+            updateCurrencyUI();
+            renderDashboard();
+            document.getElementById('expDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('payDate').value = new Date().toISOString().split('T')[0];
+        };
+
+        function loadStoredData() {
+            const storedLoans = localStorage.getItem('lg_loans');
+            const storedExpenses = localStorage.getItem('lg_expenses');
+            const storedCurrency = localStorage.getItem('lg_currency');
+
+            if (storedCurrency && (storedCurrency === 'INR' || storedCurrency === 'AED')) {
+                currentCurrency = storedCurrency;
+            }
+
+            if (storedLoans) {
+                loans = JSON.parse(storedLoans);
+            } else {
+                loans = [
+                    { id: '1', title: 'ICICI Credit Card', total: 50000, remaining: 15000, rate: 3.5, dueDate: '2026-11-15', status: 'Active' },
+                    { id: '2', title: 'AXIS Credit Card', total: 60000, remaining: 18000, rate: 3.5, dueDate: '2026-11-18', status: 'Active' },
+                    { id: '3', title: 'SBI Credit Card', total: 40000, remaining: 12000, rate: 3.5, dueDate: '2026-11-20', status: 'Active' },
+                    { id: '4', title: 'Home loan (BOB bank)', total: 3500000, remaining: 2950000, rate: 8.5, dueDate: '2026-11-05', status: 'Active' },
+                    { id: '5', title: 'Gold loan', total: 200000, remaining: 180000, rate: 10.0, dueDate: '2026-11-25', status: 'Active' },
+                    { id: '6', title: 'Navi app loan', total: 50000, remaining: 25000, rate: 14.0, dueDate: '2026-11-10', status: 'Active' },
+                    { id: '7', title: 'Slice app loan', total: 30000, remaining: 8000, rate: 12.0, dueDate: '2026-11-12', status: 'Active' }
+                ];
+                saveLoans();
+            }
+
+            if (storedExpenses) {
+                expenses = JSON.parse(storedExpenses);
+            } else {
+                const today = new Date().toISOString().split('T')[0];
+                expenses = [
+                    { id: '101', title: 'ICICI Card Statement Payment', amount: 12000, category: 'Loan Payment', date: today },
+                    { id: '102', title: 'BOB Home Loan EMI', amount: 28500, category: 'Housing', date: today }
+                ];
+                saveExpenses();
+            }
+        }
+
+        function loadRealAccountsTemplate() {
+            if (confirm('This will populate your loan tracker with your specified accounts (ICICI, Axis, SBI, BOB, Gold Loan, Navi, Slice). Custom balances can be edited after loading. Continue?')) {
+                loans = [
+                    { id: 'r1', title: 'ICICI Credit Card', total: 50000, remaining: 15000, rate: 3.5, dueDate: '2026-11-15', status: 'Active' },
+                    { id: 'r2', title: 'AXIS Credit Card', total: 60000, remaining: 18000, rate: 3.5, dueDate: '2026-11-18', status: 'Active' },
+                    { id: 'r3', title: 'SBI Credit Card', total: 40000, remaining: 12000, rate: 3.5, dueDate: '2026-11-20', status: 'Active' },
+                    { id: 'r4', title: 'Home loan (BOB bank)', total: 3500000, remaining: 2950000, rate: 8.5, dueDate: '2026-11-05', status: 'Active' },
+                    { id: 'r5', title: 'Gold loan', total: 200000, remaining: 180000, rate: 10.0, dueDate: '2026-11-25', status: 'Active' },
+                    { id: 'r6', title: 'Navi app loan', total: 50000, remaining: 25000, rate: 14.0, dueDate: '2026-11-10', status: 'Active' },
+                    { id: 'r7', title: 'Slice app loan', total: 30000, remaining: 8000, rate: 12.0, dueDate: '2026-11-12', status: 'Active' }
+                ];
+                saveLoans();
+                renderDashboard();
+                showToast('Loaded your 7 real accounts successfully!');
+            }
+        }
+
+        function applyLoanPreset(presetName) {
+            document.getElementById('loanTitle').value = presetName;
+            if (presetName.includes('Credit Card')) {
+                document.getElementById('loanTotal').value = 50000;
+                document.getElementById('loanRemaining').value = 15000;
+                document.getElementById('loanRate').value = 36.0;
+            } else if (presetName.includes('Home Loan')) {
+                document.getElementById('loanTotal').value = 4000000;
+                document.getElementById('loanRemaining').value = 3800000;
+                document.getElementById('loanRate').value = 8.5;
+            } else if (presetName.includes('Gold')) {
+                document.getElementById('loanTotal').value = 150000;
+                document.getElementById('loanRemaining').value = 150000;
+                document.getElementById('loanRate').value = 11.0;
+            } else {
+                document.getElementById('loanTotal').value = 30000;
+                document.getElementById('loanRemaining').value = 15000;
+                document.getElementById('loanRate').value = 14.0;
+            }
+        }
+
+        function saveLoans() { localStorage.setItem('lg_loans', JSON.stringify(loans)); }
+        function saveExpenses() { localStorage.setItem('lg_expenses', JSON.stringify(expenses)); }
+
+        function setCurrency(curr) {
+            currentCurrency = curr;
+            localStorage.setItem('lg_currency', curr);
+            updateCurrencyUI();
+            renderDashboard();
+            showToast(`Switched currency to ${curr}`);
+        }
+
+        function updateCurrencyUI() {
+            const inrBtn = document.getElementById('currINR');
+            const aedBtn = document.getElementById('currAED');
+
+            if (currentCurrency === 'INR') {
+                inrBtn.className = 'px-2.5 py-1 text-xs font-bold rounded-lg transition-all bg-amber-500 text-slate-950 shadow';
+                aedBtn.className = 'px-2.5 py-1 text-xs font-bold rounded-lg transition-all text-slate-400 hover:text-slate-200';
+            } else {
+                aedBtn.className = 'px-2.5 py-1 text-xs font-bold rounded-lg transition-all bg-amber-500 text-slate-950 shadow';
+                inrBtn.className = 'px-2.5 py-1 text-xs font-bold rounded-lg transition-all text-slate-400 hover:text-slate-200';
+            }
+
+            const symbol = currentCurrency === 'INR' ? '₹' : 'AED';
+            document.getElementById('loanTotalLabel').textContent = `Total Amount (${symbol}) *`;
+            document.getElementById('loanRemainingLabel').textContent = `Remaining Balance (${symbol}) *`;
+            document.getElementById('payAmountLabel').textContent = `Payment Amount (${symbol}) *`;
+            document.getElementById('expAmountLabel').textContent = `Amount (${symbol}) *`;
+        }
+
+        function formatMoney(amount) {
+            const val = parseFloat(amount || 0);
+            if (currentCurrency === 'INR') {
+                return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(val);
+            } else {
+                return new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED', maximumFractionDigits: 2 }).format(val);
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-emerald-950 border-emerald-500/50 text-emerald-200' : 'bg-rose-950 border-rose-500/50 text-rose-200';
+            const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
+
+            toast.className = `flex items-center gap-3 px-4 py-3 rounded-xl border ${bgColor} shadow-xl text-xs font-medium backdrop-blur-md transition-all duration-300`;
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function renderDashboard() {
+            renderSummaryCards();
+            renderLoans();
+            renderExpenses();
+            updateCharts();
+        }
+
+        function renderSummaryCards() {
+            const totalExp = expenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+            document.getElementById('cardTotalExpenses').textContent = formatMoney(totalExp);
+            document.getElementById('expenseCountBadge').textContent = `${expenses.length} items`;
+
+            let activeLoansTotal = 0;
+            let originalTotalSum = 0;
+            let activeCount = 0;
+            let upcomingDate = null;
+            let upcomingTitle = '';
+
+            loans.forEach(loan => {
+                if (loan.status === 'Active') {
+                    activeLoansTotal += parseFloat(loan.remaining || 0);
+                    activeCount++;
+
+                    if (loan.dueDate) {
+                        const d = new Date(loan.dueDate);
+                        if (!upcomingDate || d < upcomingDate) {
+                            upcomingDate = d;
+                            upcomingTitle = `${loan.title} (${d.toLocaleDateString(undefined, {month:'short', day:'numeric'})})`;
+                        }
+                    }
+                }
+                originalTotalSum += parseFloat(loan.total || 0);
+            });
+
+            document.getElementById('cardActiveLoans').textContent = formatMoney(activeLoansTotal);
+            document.getElementById('cardTotalLoanOriginal').textContent = formatMoney(originalTotalSum);
+            document.getElementById('cardUpcomingCount').textContent = `${activeCount} Active`;
+            document.getElementById('cardNextDueSub').textContent = upcomingTitle ? `Next due: ${upcomingTitle}` : 'No immediate deadline';
+
+            const totalPaidOff = originalTotalSum - activeLoansTotal;
+            const repaidPct = originalTotalSum > 0 ? Math.min(100, Math.round((totalPaidOff / originalTotalSum) * 100)) : 0;
+            document.getElementById('cardRepaidPercentage').textContent = `${repaidPct}%`;
+            document.getElementById('cardRepaidProgressBar').style.width = `${repaidPct}%`;
+        }
+
+        function renderLoans() {
+            const container = document.getElementById('loansList');
+            container.innerHTML = '';
+
+            if (loans.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10 border border-dashed border-slate-800 rounded-xl">
+                        <i class="fa-solid fa-handshake-slash text-3xl text-slate-600 mb-2"></i>
+                        <p class="text-xs text-slate-400">No active or paid loans logged yet.</p>
+                    </div>`;
+                return;
+            }
+
+            loans.forEach(loan => {
+                const total = parseFloat(loan.total || 0);
+                const remaining = parseFloat(loan.remaining || 0);
+                const paid = total - remaining;
+                const pct = total > 0 ? Math.min(100, Math.max(0, Math.round((paid / total) * 100))) : 0;
+                const isPaid = loan.status === 'Paid' || remaining <= 0;
+
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-xl border transition-all ${isPaid ? 'bg-slate-950/40 border-slate-800/60 opacity-80' : 'bg-slate-950 border-slate-800 hover:border-amber-500/40'}`;
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-3 mb-2">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-bold text-sm text-slate-100">${escapeHtml(loan.title)}</h4>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold ${isPaid ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">
+                                    ${isPaid ? 'Paid Off' : 'Active'}
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-0.5">
+                                ${loan.rate ? `Interest: <span class="text-slate-300 font-medium">${loan.rate}% APR</span> • ` : ''}
+                                ${loan.dueDate ? `Due: <span class="text-slate-300 font-medium">${loan.dueDate}</span>` : 'No Due Date'}
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button onclick="openLoanModal('${loan.id}')" title="Edit Loan" class="p-1.5 text-slate-400 hover:text-amber-400 hover:bg-slate-900 rounded-lg">
+                                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                            </button>
+                            <button onclick="deleteLoan('${loan.id}')" title="Delete Loan" class="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-900 rounded-lg">
+                                <i class="fa-solid fa-trash text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 my-3 text-xs bg-slate-900/60 p-2.5 rounded-lg border border-slate-800/50">
+                        <div>
+                            <span class="text-[10px] text-slate-500 uppercase block">Total</span>
+                            <span class="font-semibold text-slate-200">${formatMoney(total)}</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-500 uppercase block">Repaid</span>
+                            <span class="font-semibold text-emerald-400">${formatMoney(paid)}</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-500 uppercase block">Remaining</span>
+                            <span class="font-semibold ${isPaid ? 'text-slate-400' : 'text-amber-400'}">${formatMoney(remaining)}</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1 mb-3">
+                        <div class="flex justify-between text-[11px] text-slate-400">
+                            <span>Repayment Progress</span>
+                            <span class="font-bold text-slate-200">${pct}%</span>
+                        </div>
+                        <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800">
+                            <div class="bg-gradient-to-r from-amber-600 to-amber-400 h-full rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+
+                    ${!isPaid ? `
+                    <div class="flex items-center gap-2 pt-1">
+                        <button onclick="openPaymentModal('${loan.id}')" class="flex-1 py-1.5 px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-plus-circle"></i> Log Payment
+                        </button>
+                        <button onclick="markLoanAsPaid('${loan.id}')" class="py-1.5 px-3 bg-slate-900 hover:bg-emerald-950/40 text-slate-300 hover:text-emerald-400 border border-slate-800 hover:border-emerald-500/30 rounded-lg text-xs font-semibold transition-all">
+                            Mark Paid
+                        </button>
+                    </div>
+                    ` : ''}
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openLoanModal(loanId = null) {
+            const modal = document.getElementById('loanModal');
+            document.getElementById('loanForm').reset();
+
+            if (loanId) {
+                const loan = loans.find(l => l.id === loanId);
+                if (loan) {
+                    document.getElementById('loanModalTitle').innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Edit Loan';
+                    document.getElementById('loanId').value = loan.id;
+                    document.getElementById('loanTitle').value = loan.title;
+                    document.getElementById('loanTotal').value = loan.total;
+                    document.getElementById('loanRemaining').value = loan.remaining;
+                    document.getElementById('loanRate').value = loan.rate || '';
+                    document.getElementById('loanDueDate').value = loan.dueDate || '';
+                    document.getElementById('loanStatus').value = loan.status;
+                }
+            } else {
+                document.getElementById('loanModalTitle').innerHTML = '<i class="fa-solid fa-handshake"></i> Add New Loan';
+                document.getElementById('loanId').value = '';
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeLoanModal() { document.getElementById('loanModal').classList.add('hidden'); }
+
+        function saveLoan(e) {
+            e.preventDefault();
+            const id = document.getElementById('loanId').value;
+            const title = document.getElementById('loanTitle').value.trim();
+            const total = parseFloat(document.getElementById('loanTotal').value);
+            const remaining = parseFloat(document.getElementById('loanRemaining').value);
+            const rate = parseFloat(document.getElementById('loanRate').value) || 0;
+            const dueDate = document.getElementById('loanDueDate').value;
+            const status = document.getElementById('loanStatus').value;
+
+            if (id) {
+                const index = loans.findIndex(l => l.id === id);
+                if (index !== -1) {
+                    loans[index] = { id, title, total, remaining, rate, dueDate, status };
+                    showToast('Loan record updated');
+                }
+            } else {
+                loans.unshift({ id: Date.now().toString(), title, total, remaining, rate, dueDate, status });
+                showToast('New loan added successfully');
+            }
+
+            saveLoans();
+            closeLoanModal();
+            renderDashboard();
+        }
+
+        function deleteLoan(id) {
+            if (confirm('Are you sure you want to delete this loan record?')) {
+                loans = loans.filter(l => l.id !== id);
+                saveLoans();
+                renderDashboard();
+                showToast('Loan record deleted');
+            }
+        }
+
+        function markLoanAsPaid(id) {
+            const loan = loans.find(l => l.id === id);
+            if (loan) {
+                loan.remaining = 0;
+                loan.status = 'Paid';
+                saveLoans();
+                renderDashboard();
+                showToast(`Loan "${loan.title}" marked as fully paid!`);
+            }
+        }
+
+        function openPaymentModal(loanId) {
+            const loan = loans.find(l => l.id === loanId);
+            if (!loan) return;
+            document.getElementById('payLoanId').value = loan.id;
+            document.getElementById('paymentModalSub').textContent = `Record payment toward "${loan.title}"`;
+            document.getElementById('payAmount').value = '';
+            document.getElementById('paymentModal').classList.remove('hidden');
+        }
+
+        function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
+
+        function submitPayment(e) {
+            e.preventDefault();
+            const loanId = document.getElementById('payLoanId').value;
+            const amount = parseFloat(document.getElementById('payAmount').value);
+            const date = document.getElementById('payDate').value;
+            const addAsExpense = document.getElementById('payAddExpense').checked;
+
+            const loan = loans.find(l => l.id === loanId);
+            if (loan && amount > 0) {
+                loan.remaining = Math.max(0, loan.remaining - amount);
+                if (loan.remaining === 0) loan.status = 'Paid';
+                saveLoans();
+
+                if (addAsExpense) {
+                    expenses.unshift({
+                        id: Date.now().toString(),
+                        title: `Payment: ${loan.title}`,
+                        amount: amount,
+                        category: 'Loan Payment',
+                        date: date
+                    });
+                    saveExpenses();
+                }
+
+                showToast(`Logged payment of ${formatMoney(amount)}`);
+                closePaymentModal();
+                renderDashboard();
+            }
+        }
+
+        function renderExpenses() {
+            const container = document.getElementById('expensesList');
+            const catFilter = document.getElementById('filterCategory').value;
+            const dateFilter = document.getElementById('filterDateRange').value;
+            const now = new Date();
+
+            let filtered = expenses.filter(exp => {
+                if (catFilter !== 'All' && exp.category !== catFilter) return false;
+                if (exp.date) {
+                    const expDate = new Date(exp.date);
+                    if (dateFilter === 'Month') {
+                        if (expDate.getMonth() !== now.getMonth() || expDate.getFullYear() !== now.getFullYear()) return false;
+                    } else if (dateFilter === 'Year') {
+                        if (expDate.getFullYear() !== now.getFullYear()) return false;
+                    }
+                }
+                return true;
+            });
+
+            container.innerHTML = '';
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 border border-dashed border-slate-800 rounded-xl">
+                        <i class="fa-solid fa-receipt text-2xl text-slate-600 mb-1"></i>
+                        <p class="text-xs text-slate-400">No matching expenses found.</p>
+                    </div>`;
+                return;
+            }
+
+            filtered.forEach(exp => {
+                const color = categoryColors[exp.category] || '#64748b';
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-3 bg-slate-950 rounded-xl border border-slate-800 hover:border-slate-700 transition-all group';
+
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-2.5 h-8 rounded-full" style="background-color: ${color}"></div>
+                        <div>
+                            <h5 class="text-xs font-bold text-slate-200">${escapeHtml(exp.title)}</h5>
+                            <div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
+                                <span class="bg-slate-900 px-1.5 py-0.5 rounded text-slate-300 border border-slate-800">${escapeHtml(exp.category)}</span>
+                                <span>${exp.date || 'No Date'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-bold text-slate-100">${formatMoney(parseFloat(exp.amount))}</span>
+                        <div class="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                            <button onclick="openExpenseModal('${exp.id}')" class="p-1 text-slate-400 hover:text-amber-400">
+                                <i class="fa-solid fa-pen text-[10px]"></i>
+                            </button>
+                            <button onclick="deleteExpense('${exp.id}')" class="p-1 text-slate-400 hover:text-rose-400">
+                                <i class="fa-solid fa-trash text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function openExpenseModal(expId = null) {
+            const modal = document.getElementById('expenseModal');
+            document.getElementById('expenseForm').reset();
+
+            if (expId) {
+                const exp = expenses.find(e => e.id === expId);
+                if (exp) {
+                    document.getElementById('expenseModalTitle').innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Edit Expense';
+                    document.getElementById('expenseId').value = exp.id;
+                    document.getElementById('expTitle').value = exp.title;
+                    document.getElementById('expAmount').value = exp.amount;
+                    document.getElementById('expCategory').value = exp.category;
+                    document.getElementById('expDate').value = exp.date;
+                }
+            } else {
+                document.getElementById('expenseModalTitle').innerHTML = '<i class="fa-solid fa-file-invoice-dollar"></i> Add Expense';
+                document.getElementById('expenseId').value = '';
+                document.getElementById('expDate').value = new Date().toISOString().split('T')[0];
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeExpenseModal() { document.getElementById('expenseModal').classList.add('hidden'); }
+
+        function saveExpense(e) {
+            e.preventDefault();
+            const id = document.getElementById('expenseId').value;
+            const title = document.getElementById('expTitle').value.trim();
+            const amount = parseFloat(document.getElementById('expAmount').value);
+            const category = document.getElementById('expCategory').value;
+            const date = document.getElementById('expDate').value;
+
+            if (id) {
+                const index = expenses.findIndex(e => e.id === id);
+                if (index !== -1) {
+                    expenses[index] = { id, title, amount, category, date };
+                    showToast('Expense updated');
+                }
+            } else {
+                expenses.unshift({ id: Date.now().toString(), title, amount, category, date });
+                showToast('Expense added');
+            }
+
+            saveExpenses();
+            closeExpenseModal();
+            renderDashboard();
+        }
+
+        function deleteExpense(id) {
+            expenses = expenses.filter(e => e.id !== id);
+            saveExpenses();
+            renderDashboard();
+            showToast('Expense removed');
+        }
+
+        function initCharts() {
+            const ctxCategory = document.getElementById('expenseCategoryChart').getContext('2d');
+            categoryChart = new Chart(ctxCategory, {
+                type: 'doughnut',
+                data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderWidth: 2, borderColor: '#0f172a' }] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 10, family: 'Inter' }, boxWidth: 12 } },
+                        tooltip: { callbacks: { label: (ctx) => ` ${ctx.label}: ${formatMoney(ctx.raw)}` } }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            const ctxTimeline = document.getElementById('expenseTimelineChart').getContext('2d');
+            timelineChart = new Chart(ctxTimeline, {
+                type: 'bar',
+                data: { labels: [], datasets: [{ label: 'Total Expenses', data: [], backgroundColor: '#f59e0b', borderRadius: 6 }] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: (ctx) => ` Total: ${formatMoney(ctx.raw)}` } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { display: false } },
+                        y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: '#1e293b' } }
+                    }
+                }
+            });
+        }
+
+        function updateCharts() {
+            const categoryTotals = {};
+            expenses.forEach(exp => {
+                const cat = exp.category || 'Other';
+                categoryTotals[cat] = (categoryTotals[cat] || 0) + parseFloat(exp.amount || 0);
+            });
+
+            categoryChart.data.labels = Object.keys(categoryTotals);
+            categoryChart.data.datasets[0].data = Object.values(categoryTotals);
+            categoryChart.data.datasets[0].backgroundColor = Object.keys(categoryTotals).map(l => categoryColors[l] || '#64748b');
+            categoryChart.update();
+
+            const dateTotals = {};
+            [...expenses].sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(exp => {
+                if (exp.date) dateTotals[exp.date] = (dateTotals[exp.date] || 0) + parseFloat(exp.amount || 0);
+            });
+
+            timelineChart.data.labels = Object.keys(dateTotals).slice(-7);
+            timelineChart.data.datasets[0].data = timelineChart.data.labels.map(d => dateTotals[d]);
+            timelineChart.update();
+        }
+
+        function openSmartParserModal() { document.getElementById('smartParserModal').classList.remove('hidden'); }
+        function closeSmartParserModal() { document.getElementById('smartParserModal').classList.add('hidden'); }
+
+        function switchParserTab(tab) {
+            const smsView = document.getElementById('parserSmsView');
+            const csvView = document.getElementById('parserCsvView');
+            const smsBtn = document.getElementById('tabSmsBtn');
+            const csvBtn = document.getElementById('tabCsvBtn');
+
+            if (tab === 'sms') {
+                smsView.classList.remove('hidden');
+                csvView.classList.add('hidden');
+                smsBtn.className = 'px-4 py-2 border-b-2 border-amber-500 text-amber-400 text-xs font-bold';
+                csvBtn.className = 'px-4 py-2 border-b-2 border-transparent text-slate-400 text-xs font-bold hover:text-slate-200';
+            } else {
+                smsView.classList.add('hidden');
+                csvView.classList.remove('hidden');
+                csvBtn.className = 'px-4 py-2 border-b-2 border-amber-500 text-amber-400 text-xs font-bold';
+                smsBtn.className = 'px-4 py-2 border-b-2 border-transparent text-slate-400 text-xs font-bold hover:text-slate-200';
+            }
+        }
+
+        function parseSmsText() {
+            const text = document.getElementById('smsTextInput').value;
+            if (!text) {
+                showToast('Please paste SMS text first', 'error');
+                return;
+            }
+
+            // Simple regex match for numbers like Rs. 4,500 or INR 1200
+            const matchAmt = text.match(/(?:Rs\.?|INR|₹)\s*([\d,]+\.?\d*)/i);
+            const amount = matchAmt ? parseFloat(matchAmt[1].replace(/,/g, '')) : 500;
+            
+            let title = 'SMS Expense';
+            if (text.toLowerCase().includes('icici')) title = 'ICICI Card Spend';
+            else if (text.toLowerCase().includes('axis')) title = 'Axis Card Spend';
+            else if (text.toLowerCase().includes('sbi')) title = 'SBI Card Spend';
+
+            expenses.unshift({
+                id: Date.now().toString(),
+                title: title,
+                amount: amount,
+                category: 'Personal',
+                date: new Date().toISOString().split('T')[0]
+            });
+
+            saveExpenses();
+            renderDashboard();
+            closeSmartParserModal();
+            showToast(`Extracted expense of ${formatMoney(amount)} successfully!`);
+        }
+
+        function parseCsvFile() {
+            const fileInput = document.getElementById('csvFileInput');
+            if (!fileInput.files[0]) {
+                showToast('Please select a CSV file', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const lines = e.target.result.split('\n');
+                let count = 0;
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    const parts = line.split(',');
+                    if (parts.length >= 2) {
+                        const title = parts[0].replace(/"/g, '').trim();
+                        const amount = parseFloat(parts[1].replace(/[^0-9.-]+/g,"")) || 100;
+                        expenses.unshift({
+                            id: (Date.now() + i).toString(),
+                            title: title || 'CSV Imported Expense',
+                            amount: amount,
+                            category: 'Other',
+                            date: new Date().toISOString().split('T')[0]
+                        });
+                        count++;
+                    }
+                }
+                saveExpenses();
+                renderDashboard();
+                closeSmartParserModal();
+                showToast(`Successfully imported ${count} items from CSV!`);
+            };
+            reader.readAsText(fileInput.files[0]);
+        }
+
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ loans, expenses, currency: currentCurrency }, null, 2));
+            const dl = document.createElement('a');
+            dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", `LedgerGold_Backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(dl);
+            dl.click();
+            dl.remove();
+            showToast('Data exported successfully');
+        }
+
+        function importData(event) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (parsed.loans && parsed.expenses) {
+                        loans = parsed.loans;
+                        expenses = parsed.expenses;
+                        if (parsed.currency) {
+                            currentCurrency = parsed.currency;
+                            localStorage.setItem('lg_currency', currentCurrency);
+                        }
+                        saveLoans();
+                        saveExpenses();
+                        updateCurrencyUI();
+                        renderDashboard();
+                        showToast('Data imported successfully!');
+                    } else {
+                        showToast('Invalid JSON structure', 'error');
+                    }
+                } catch (err) {
+                    showToast('Failed to parse file', 'error');
+                }
+            };
+            if (event.target.files[0]) reader.readAsText(event.target.files[0]);
+        }
+
+        function resetDataPrompt() {
+            if (confirm('Clear all loan and expense records?')) {
+                loans = [];
+                expenses = [];
+                saveLoans();
+                saveExpenses();
+                renderDashboard();
+                showToast('All application data cleared');
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, function(m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+            });
+        }
+    </script>
+</body>
+</html>
+

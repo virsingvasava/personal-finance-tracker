@@ -69,51 +69,51 @@
 <body class="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 pb-12 transition-colors duration-300">
 
     <!-- Top Navigation Header -->
-    <header class="border-b border-slate-200 dark:border-amber-500/20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-30 shadow-sm dark:shadow-none">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center text-slate-950 font-bold text-xl shadow-lg shadow-amber-500/20">
+    <header class="border-b border-slate-200 dark:border-amber-500/20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md sticky top-0 z-30 shadow-sm dark:shadow-none">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center text-slate-950 font-bold text-lg sm:text-xl shadow-lg shadow-amber-500/20 shrink-0">
                     <i class="fa-solid fa-wallet"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight">Mr Virsing Vasava</h1>
-                    <p class="text-xs text-amber-600 dark:text-amber-500 font-medium">Loan & Expense Manager</p>
+                    <h1 class="text-sm sm:text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight">Mr Virsing Vasava</h1>
+                    <p class="text-[11px] sm:text-xs text-amber-600 dark:text-amber-500 font-medium">Loan & Expense Manager</p>
                 </div>
             </div>
             
-            <div class="flex items-center gap-2 sm:gap-3">
+            <div class="flex items-center flex-wrap gap-1.5 sm:gap-2.5 ml-auto">
                 <!-- Currency Selector Toggle -->
-                <div class="flex items-center bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-1 gap-1">
-                    <button id="currINR" onclick="setCurrency('INR')" class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all text-slate-600 dark:text-slate-400">₹ INR</button>
-                    <button id="currAED" onclick="setCurrency('AED')" class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all text-slate-600 dark:text-slate-400">AED</button>
+                <div class="flex items-center bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-0.5 gap-1">
+                    <button id="currINR" onclick="setCurrency('INR')" class="px-2 py-1 text-[11px] sm:text-xs font-bold rounded-lg transition-all text-slate-600 dark:text-slate-400">₹ INR</button>
+                    <button id="currAED" onclick="setCurrency('AED')" class="px-2 py-1 text-[11px] sm:text-xs font-bold rounded-lg transition-all text-slate-600 dark:text-slate-400">AED</button>
                 </div>
 
                 <!-- Dark / Light Mode Toggle Button -->
-                <button onclick="toggleTheme()" id="themeToggleBtn" title="Toggle Light/Dark Mode" class="h-[34px] px-3 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-amber-400 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border border-slate-300 dark:border-slate-700">
-                    <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
+                <button onclick="toggleTheme()" id="themeToggleBtn" title="Toggle Light/Dark Mode" class="h-[32px] px-2.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-amber-400 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all border border-slate-300 dark:border-slate-700">
+                    <i id="themeIcon" class="fa-solid fa-moon text-xs"></i>
                 </button>
 
                 <!-- Quick Import / Parser Tool Trigger -->
-                <button onclick="openSmartParserModal()" title="Smart SMS / Statement Text Parser" class="h-[34px] px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 rounded-xl text-xs font-semibold hidden sm:flex items-center gap-1.5 transition-all">
-                    <i class="fa-solid fa-wand-magic-sparkles text-xs"></i> Parser & Import
+                <button onclick="openSmartParserModal()" title="Smart SMS / Statement Text Parser" class="h-[32px] px-2.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all">
+                    <i class="fa-solid fa-wand-magic-sparkles text-xs"></i> <span class="hidden md:inline">Parser & Import</span>
                 </button>
 
-                <button onclick="exportData()" title="Export JSON" class="p-2 text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors">
-                    <i class="fa-solid fa-download"></i>
+                <button onclick="exportData()" title="Export JSON" class="p-1.5 sm:p-2 text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                    <i class="fa-solid fa-download text-xs sm:text-sm"></i>
                 </button>
-                <label title="Import JSON" class="p-2 text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer">
-                    <i class="fa-solid fa-upload"></i>
+                <label title="Import JSON" class="p-1.5 sm:p-2 text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer">
+                    <i class="fa-solid fa-upload text-xs sm:text-sm"></i>
                     <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
                 </label>
-                <button onclick="resetDataPrompt()" title="Reset All Data" class="p-2 text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors">
-                    <i class="fa-solid fa-trash-arrow-up"></i>
+                <button onclick="resetDataPrompt()" title="Reset All Data" class="p-1.5 sm:p-2 text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                    <i class="fa-solid fa-trash-arrow-up text-xs sm:text-sm"></i>
                 </button>
             </div>
         </div>
     </header>
 
     <!-- Main Container -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-4 sm:space-y-6">
 
         <!-- Notification Toast Container -->
         <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
@@ -126,11 +126,11 @@
                 </div>
                 <div>
                     <h2 class="text-sm font-bold text-slate-900 dark:text-slate-100">Setup Your Real Credit Cards & Loans</h2>
-                    <p class="text-xs text-slate-600 dark:text-slate-400">Click below to load your exact list (ICICI, Axis, SBI, BOB Home Loan, Gold Loan, Navi, and Slice) or edit them directly.</p>
+                    <p class="text-xs text-slate-600 dark:text-slate-400">Pre-loaded with your ICICI, Axis, SBI, BOB Home Loan, Gold Loan, Navi App Loan (₹3,85,293 bal), and Slice account data.</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2 shrink-0">
-                <button onclick="loadRealAccountsTemplate()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-xl transition-all shadow-lg shadow-amber-500/20 flex items-center gap-1.5">
+            <div class="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+                <button onclick="loadRealAccountsTemplate()" class="w-full sm:w-auto px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-xl transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-bolt"></i> Load My Real Accounts
                 </button>
             </div>
@@ -500,7 +500,6 @@
 
     <!-- JAVASCRIPT APP LOGIC -->
     <script>
-        // State Management
         let appData = {
             currency: 'INR',
             theme: 'dark',
@@ -517,13 +516,13 @@
             { id: 'l3', title: 'SBI Credit Card', total: 50000, remaining: 15400, rate: 42.0, dueDate: '2026-11-20', status: 'Active' },
             { id: 'l4', title: 'Home Loan (BOB Bank)', total: 3500000, remaining: 3100000, rate: 8.5, dueDate: '2026-11-05', status: 'Active' },
             { id: 'l5', title: 'Gold Loan', total: 150000, remaining: 120000, rate: 11.0, dueDate: '2026-12-01', status: 'Active' },
-            { id: 'l6', title: 'Navi App Loan', total: 50000, remaining: 32000, rate: 18.0, dueDate: '2026-11-25', status: 'Active' },
+            { id: 'l6', title: 'Navi App Loan (Finserve)', total: 1010000, remaining: 385293, rate: 12.86, dueDate: '2026-11-04', status: 'Active' },
             { id: 'l7', title: 'Slice App Loan', total: 30000, remaining: 14500, rate: 24.0, dueDate: '2026-11-22', status: 'Active' }
         ];
 
         const defaultExpenses = [
-            { id: 'e1', title: 'Monthly Grocery Run', amount: 8500, category: 'Food', date: '2026-11-01' },
-            { id: 'e2', title: 'Electricity Utility Bill', amount: 3200, category: 'Utilities', date: '2026-11-02' }
+            { id: 'e1', title: 'Navi Loan EMI (Oct 4)', amount: 48000, category: 'Loan Payment', date: '2026-10-04' },
+            { id: 'e2', title: 'Monthly Grocery Run', amount: 8500, category: 'Food', date: '2026-11-01' }
         ];
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -538,7 +537,6 @@
             renderAll();
         });
 
-        // Theme Toggle Controller
         function toggleTheme() {
             appData.theme = appData.theme === 'dark' ? 'light' : 'dark';
             applyTheme(appData.theme);
@@ -551,14 +549,13 @@
             const iconEl = document.getElementById('themeIcon');
             if (theme === 'light') {
                 htmlEl.classList.remove('dark');
-                if (iconEl) iconEl.className = 'fa-solid fa-sun text-sm';
+                if (iconEl) iconEl.className = 'fa-solid fa-sun text-xs sm:text-sm';
             } else {
                 htmlEl.classList.add('dark');
-                if (iconEl) iconEl.className = 'fa-solid fa-moon text-sm';
+                if (iconEl) iconEl.className = 'fa-solid fa-moon text-xs sm:text-sm';
             }
         }
 
-        // Local Storage
         function saveToLocalStorage() {
             localStorage.setItem('ledgerGoldData', JSON.stringify(appData));
         }
@@ -572,9 +569,7 @@
                     appData.theme = parsed.theme || 'dark';
                     appData.loans = parsed.loans || [];
                     appData.expenses = parsed.expenses || [];
-                } catch(e) {
-                    console.error("Error parsing local storage", e);
-                }
+                } catch(e) {}
             }
         }
 
@@ -582,7 +577,7 @@
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
             const bgClass = type === 'success' ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white';
-            toast.className = `${bgClass} px-4 py-2.5 rounded-xl text-xs font-semibold shadow-xl flex items-center gap-2 animate-in fade-in slide-in-from-bottom-3 duration-200`;
+            toast.className = `${bgClass} px-4 py-2.5 rounded-xl text-xs font-semibold shadow-xl flex items-center gap-2`;
             toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i> ${message}`;
             container.appendChild(toast);
             setTimeout(() => {
@@ -593,8 +588,8 @@
 
         function setCurrency(curr, reRender = true) {
             appData.currency = curr;
-            document.getElementById('currINR').className = curr === 'INR' ? 'px-2.5 py-1 text-xs font-bold rounded-lg transition-all bg-amber-500 text-slate-950 shadow-md' : 'px-2.5 py-1 text-xs font-bold rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200';
-            document.getElementById('currAED').className = curr === 'AED' ? 'px-2.5 py-1 text-xs font-bold rounded-lg transition-all bg-amber-500 text-slate-950 shadow-md' : 'px-2.5 py-1 text-xs font-bold rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200';
+            document.getElementById('currINR').className = curr === 'INR' ? 'px-2 py-1 text-[11px] sm:text-xs font-bold rounded-lg transition-all bg-amber-500 text-slate-950 shadow-md' : 'px-2 py-1 text-[11px] sm:text-xs font-bold rounded-lg transition-all text-slate-600 dark:text-slate-400';
+            document.getElementById('currAED').className = curr === 'AED' ? 'px-2 py-1 text-[11px] sm:text-xs font-bold rounded-lg transition-all bg-amber-500 text-slate-950 shadow-md' : 'px-2 py-1 text-[11px] sm:text-xs font-bold rounded-lg transition-all text-slate-600 dark:text-slate-400';
             
             const symbol = curr === 'INR' ? '₹' : 'AED ';
             document.getElementById('loanTotalLabel').innerText = `Total Amount (${symbol}) *`;
@@ -622,7 +617,6 @@
             renderCharts();
         }
 
-        // Summary Calculations & Cards
         function renderSummaryCards() {
             const totalExpenses = appData.expenses.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0);
             const activeLoansOwed = appData.loans.filter(l => l.status === 'Active').reduce((sum, item) => sum + parseFloat(item.remaining || 0), 0);
@@ -654,11 +648,10 @@
             document.getElementById('cardRepaidProgressBar').style.width = repaidPct + '%';
         }
 
-        // Loans Render & Actions
         function renderLoans() {
             const container = document.getElementById('loansList');
             if (appData.loans.length === 0) {
-                container.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">No loans or credit cards added yet. Click "Add New Loan" or load template.</div>`;
+                container.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">No loans or credit cards added yet.</div>`;
                 return;
             }
 
@@ -673,7 +666,7 @@
                     <div class="bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 transition-all hover:border-amber-500/40">
                         <div class="flex items-start justify-between gap-2 mb-2">
                             <div>
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-2 flex-wrap">
                                     <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm">${loan.title}</h4>
                                     <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${isPaidOff ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'}">
                                         ${isPaidOff ? 'Paid Off' : (loan.status || 'Active')}
@@ -683,7 +676,7 @@
                                     Interest: <span class="text-slate-700 dark:text-slate-300 font-medium">${loan.rate || 0}%</span> | Due: <span class="text-slate-700 dark:text-slate-300 font-medium">${loan.dueDate || 'N/A'}</span>
                                 </p>
                             </div>
-                            <div class="flex items-center gap-1">
+                            <div class="flex items-center gap-1 shrink-0">
                                 <button onclick="openPaymentModalForLoan('${loan.id}')" title="Log Payment" class="px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 rounded-lg text-xs font-semibold flex items-center gap-1">
                                     <i class="fa-solid fa-money-bill-wave text-[10px]"></i> Pay
                                 </button>
@@ -699,11 +692,11 @@
                         <div class="grid grid-cols-2 gap-2 my-3 text-xs bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800/60">
                             <div>
                                 <span class="text-slate-500 dark:text-slate-400 block text-[10px]">Remaining Balance</span>
-                                <span class="font-extrabold text-slate-900 dark:text-slate-100 text-sm">${formatMoney(rem)}</span>
+                                <span class="font-extrabold text-slate-900 dark:text-slate-100 text-xs sm:text-sm">${formatMoney(rem)}</span>
                             </div>
                             <div>
                                 <span class="text-slate-500 dark:text-slate-400 block text-[10px]">Total Original / Limit</span>
-                                <span class="font-semibold text-slate-700 dark:text-slate-300">${formatMoney(total)}</span>
+                                <span class="font-semibold text-slate-700 dark:text-slate-300 text-xs sm:text-sm">${formatMoney(total)}</span>
                             </div>
                         </div>
 
@@ -721,14 +714,12 @@
             }).join('');
         }
 
-        // Expenses Render & Actions
         function renderExpenses() {
             const categoryFilter = document.getElementById('filterCategory').value;
             const dateRangeFilter = document.getElementById('filterDateRange').value;
             const container = document.getElementById('expensesList');
 
             let filtered = [...appData.expenses];
-
             if (categoryFilter !== 'All') {
                 filtered = filtered.filter(e => e.category === categoryFilter);
             }
@@ -760,7 +751,7 @@
                             <p class="text-[10px] text-slate-500 dark:text-slate-400">${exp.category} • ${exp.date}</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2">
                         <span class="font-extrabold text-rose-600 dark:text-rose-400 text-xs">-${formatMoney(exp.amount)}</span>
                         <div class="flex items-center gap-1">
                             <button onclick="editExpense('${exp.id}')" class="p-1 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400"><i class="fa-solid fa-pen text-[10px]"></i></button>
@@ -771,7 +762,6 @@
             `).join('');
         }
 
-        // Charts
         function renderCharts() {
             const isDark = document.documentElement.classList.contains('dark');
             const textColor = isDark ? '#94a3b8' : '#64748b';
@@ -855,7 +845,6 @@
             });
         }
 
-        // Modal Controls & Actions
         function loadRealAccountsTemplate() {
             appData.loans = defaultRealAccounts;
             saveToLocalStorage();
@@ -901,6 +890,10 @@
                 document.getElementById('loanRate').value = 8.5;
             } else if (name.includes('Gold Loan')) {
                 document.getElementById('loanRate').value = 11.0;
+            } else if (name.includes('Navi')) {
+                document.getElementById('loanRate').value = 12.86;
+                document.getElementById('loanTotal').value = 1010000;
+                document.getElementById('loanRemaining').value = 385293;
             }
         }
 
@@ -921,11 +914,10 @@
                 }
                 showToast("Loan updated successfully!");
             } else {
-                const newLoan = {
+                appData.loans.push({
                     id: 'l_' + Date.now(),
                     title, total, remaining, rate, dueDate, status
-                };
-                appData.loans.push(newLoan);
+                });
                 showToast("New loan added successfully!");
             }
 
@@ -947,7 +939,6 @@
             }
         }
 
-        // Payment Modal
         function openPaymentModalForLoan(loanId) {
             const loan = appData.loans.find(l => l.id === loanId);
             if (!loan) return;
@@ -991,7 +982,6 @@
             showToast(`Logged payment of ${formatMoney(amount)} successfully!`);
         }
 
-        // Expense Modal
         function openExpenseModal(id = null) {
             document.getElementById('expenseId').value = '';
             document.getElementById('expTitle').value = '';
@@ -1058,7 +1048,6 @@
             }
         }
 
-        // Parser & Import Modal
         function openSmartParserModal() {
             document.getElementById('smartParserModal').classList.remove('hidden');
         }
@@ -1142,7 +1131,6 @@
             reader.readAsText(file);
         }
 
-        // Backup / Restore JSON
         function exportData() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
             const dlAnchor = document.createElement('a');
@@ -1190,3 +1178,4 @@
     </script>
 </body>
 </html>
+
